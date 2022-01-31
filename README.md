@@ -1,15 +1,17 @@
 # PyPiano
 Synthesia but open source, made in python and free
+![presetntation](https://user-images.githubusercontent.com/72820204/151807839-82f8d3b8-2919-443b-a6e1-0c0b0a4f67d1.png)
 
 Requirements are in requirements.txt
 If you struggle with installation of pyaudio, run :
-
+<br>
 <code>
 pip install pipwin
 </code><br>
 <code>
 pipwin install pyaudio
-</code>
+</code><br>
+(run main.pyw to launch PyPiano, change extention to .py to see the debug console)
 <hr>
 <h2> Commands : </h2>
 
@@ -51,5 +53,5 @@ pipwin install pyaudio
 
 <i>Any review is welcome, I'll be glad to fix errors or to add features through the issues section !<i>
  <br>
-<i>Cheers, Dacao<i>
+<i>Cheers, Dacapo<i>
 
