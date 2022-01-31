@@ -44,7 +44,7 @@ class KeyTrack:
                         self.audioElem[intensity] = AudioSegment.from_file(
                             "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
 
-                        octaves = (index - note_list.index(i)) / 12
+                        octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
                         new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                         self.audioElem[intensity] = self.audioElem[intensity]._spawn(self.audioElem[intensity].raw_data,
@@ -93,7 +93,7 @@ class KeyTrack:
                             self.audioElem[intensity] = AudioSegment.from_file(
                                 "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
 
-                            octaves = (index - note_list.index(i)) / 12
+                            octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
                             new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                             self.audioElem[intensity] = self.audioElem[intensity]._spawn(
