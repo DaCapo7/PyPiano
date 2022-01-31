@@ -58,6 +58,10 @@ class KeyTrack:
         self.tracklist.sort(key=lambda x: x[1] + x[2])
 
     def create_track(self):
+	if self.note=="B":
+	    oct = int(self.octave)+1
+	else:
+	    oct = int(self.octave)
 
         # if no tracklist return empty track
         if len(self.tracklist) == 0:
@@ -73,7 +77,7 @@ class KeyTrack:
             if intensity not in self.audioElem:
                 if self.note in recorded_note_list:
                     self.audioElem[intensity] = AudioSegment.from_file(
-                        "piano/44.1khz16bit/" + self.note + str(self.octave) + "v" + str(intensity) + ".wav")
+                        "piano/44.1khz16bit/" + self.note + str(oct) + "v" + str(intensity) + ".wav")
                 else:
                     index = note_list.index(self.note)
                     # most proach note in recorded_note_list with note_list
