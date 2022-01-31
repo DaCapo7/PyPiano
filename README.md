@@ -53,5 +53,5 @@ pipwin install pyaudio
 
 <i>Any review is welcome, I'll be glad to fix errors or to add features through the issues section !<i>
  <br>
-<i>Cheers, Dacao<i>
+<i>Cheers, Dacapo<i>
 
