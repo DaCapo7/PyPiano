@@ -19,6 +19,11 @@ class KeyTrack:
             print("KeyTrack created : " + self.note + str(self.octave))
 
     def addintervaltotrack(self, intensity, position, duration):
+        if self.note == "B":
+            octave_for_notecreation = int(self.octave) + 1
+        else:
+            octave_for_notecreation = int(self.octave)
+
         print(self.note, self.octave)
         # add (sound, position) to tracklist
         # intensity is the volume of the sound : ff, mf, pp
@@ -29,7 +34,7 @@ class KeyTrack:
         if intensity not in self.audioElem:
             if self.note in recorded_note_list:
                 self.audioElem[intensity] = AudioSegment.from_file(
-                    "piano/44.1khz16bit/" + self.note + str(self.octave) + "v" + str(intensity) + ".wav")
+                    "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
             else:
                 index = note_list.index(self.note)
                 # most proach note in recorded_note_list with note_list
@@ -37,7 +42,7 @@ class KeyTrack:
                     if note_list.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
                         # reduce or incrase tone by one semitone
                         self.audioElem[intensity] = AudioSegment.from_file(
-                            "piano/44.1khz16bit/" + i + str(self.octave) + "v" + str(intensity) + ".wav")
+                            "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
 
                         octaves = (index - note_list.index(i)) / 12
                         new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
@@ -58,11 +63,12 @@ class KeyTrack:
         self.tracklist.sort(key=lambda x: x[1] + x[2])
 
     def create_track(self):
-	if self.note=="B":
-	    oct = int(self.octave)+1
-	else:
-	    oct = int(self.octave)
-
+        print(self.note, self.octave)
+        if self.note == "B":
+            octave_for_notecreation = int(self.octave) + 1
+        else:
+            octave_for_notecreation = int(self.octave)
+        print("octave_for_notecreation " + str(octave_for_notecreation), "before", self.note ,self.octave)
         # if no tracklist return empty track
         if len(self.tracklist) == 0:
             return AudioSegment.silent()
@@ -77,7 +83,7 @@ class KeyTrack:
             if intensity not in self.audioElem:
                 if self.note in recorded_note_list:
                     self.audioElem[intensity] = AudioSegment.from_file(
-                        "piano/44.1khz16bit/" + self.note + str(oct) + "v" + str(intensity) + ".wav")
+                        "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
                 else:
                     index = note_list.index(self.note)
                     # most proach note in recorded_note_list with note_list
@@ -85,7 +91,7 @@ class KeyTrack:
                         if note_list.index(i) - index in [-1, 1]:
                             # reduce or incrase tone by one semitone
                             self.audioElem[intensity] = AudioSegment.from_file(
-                                "piano/44.1khz16bit/" + i + str(self.octave) + "v" + str(intensity) + ".wav")
+                                "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
 
                             octaves = (index - note_list.index(i)) / 12
                             new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
