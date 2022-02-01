@@ -24,6 +24,7 @@ with warnings.catch_warnings(record=True) as w:
             print("Downloading ffmpeg")
             r = requests.get(url, allow_redirects=True)
             print("Downloaded")
+            os.mkdir("downloads")
             open('./downloads/ffmpeg.7z', 'wb').write(r.content)
             print("Extracting ffmpeg")
             Archive('./downloads/ffmpeg.7z').extractall('./downloads/')
