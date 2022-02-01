@@ -93,6 +93,7 @@ class Pianoui(Frame):
 
     def __init__(self):
         # dict that holds coordinates of each key with format name: (x, y, end_x, end_y)
+        self.keyboardwidth = None
         self.musicLength = None
         self.piano = pypiano.Piano()
 
@@ -201,9 +202,7 @@ class Pianoui(Frame):
             self.onPlay()
 
     def whatclicked(self, ev):
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
         key = None
         clicked = None
         for i in self.blackkeycoords:
@@ -245,10 +244,7 @@ class Pianoui(Frame):
             self.addTile(self.copyData[1], self.copyData[2], key, self.copyData[3])  # y1, y2, key, intensity
 
     def onIncreaseTrack(self, ev):  # increase intensity of tile
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
 
         # get the key that was clicked
         # start with black keys
@@ -286,10 +282,7 @@ class Pianoui(Frame):
                     break
 
     def onDecreaseTrack(self, ev):
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
 
         # get the key that was clicked
         # start with black keys
@@ -591,13 +584,7 @@ class Pianoui(Frame):
             oct_start += self.whitekeywidth * 7
 
         # draw the ruler
-        sec = 0
-        for bar in range(root.winfo_height() - self.whitekeyheight, self.trackLength, -100):
-            self.rulerCanvas.create_line(0, bar, self.rulerWidth + 1, bar, fill='#FF0000', width=1)
-            # add text that is time in seconds
-            self.rulerCanvas.create_text(0, bar - 10, text=str(sec), width=self.rulerWidth, fill='#000000',
-                                         font=('Helvetica', 10), anchor='sw')
-            sec += 1
+        self.loadRuler()
 
         # make the canvas scrollable on x
         self.hbar = Scrollbar(self.keysCanvas, orient="horizontal")
@@ -616,7 +603,7 @@ class Pianoui(Frame):
 
         self.trackCanvas.config(xscrollcommand=self.hbar.set,
                                 scrollregion=(0, self.trackLength, oct_start, self.trackCanvas.winfo_height()))
-
+        self.keyboardwidth = oct_start
         self.trackCanvas.config(yscrollcommand=self.vbar.set)
         self.trackCanvas.place(x=0, y=0, anchor=tk.NW, width=root.winfo_width(), height=trackheight)
 
@@ -625,6 +612,16 @@ class Pianoui(Frame):
         self.rulerCanvas.place(x=0, y=0, anchor=tk.NW, width=self.rulerWidth, height=trackheight)
 
         self.max_Xnote = oct_start
+
+    def loadRuler(self):
+        sec = 0
+        self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerWidth, self.trackLength, fill='#FFFFFF')
+        for bar in range(root.winfo_height() - self.whitekeyheight, self.trackLength, -100):
+            self.rulerCanvas.create_line(0, bar, self.rulerWidth + 1, bar, fill='#FF0000', width=1)
+            # add text that is time in seconds
+            self.rulerCanvas.create_text(0, bar - 10, text=str(sec), width=self.rulerWidth, fill='#000000',
+                                         font=('Helvetica', 10), anchor='sw')
+            sec += 1
 
     def globalH_scroll(self, *args):
         self.keysCanvas.xview(*args)
@@ -649,7 +646,7 @@ class Pianoui(Frame):
         filemenu.add_command(label="Load", command=self.onLoad)
         filemenu.add_command(label="Save", command=self.onSave)
         filemenu.add_command(label="Export", command=self.onExport)
-        filemenu.add_command(label="Play", command=self.onPlay)
+        filemenu.add_command(label="Play (double space)", command=self.onPlay)
 
         menubar.add_cascade(label="File", menu=filemenu)
 
@@ -657,10 +654,7 @@ class Pianoui(Frame):
         self.quit()
 
     def onMoveTrack(self, ev):
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
 
         key = None
         mode = "adding"
@@ -701,8 +695,7 @@ class Pianoui(Frame):
             root.config(cursor="fleur")
 
     def onClickKey(self, ev, ):
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
+        ev = self.convertevent(ev)
 
         # get the key that was clicked
         # start with black keys
@@ -724,12 +717,18 @@ class Pianoui(Frame):
         if key is not None:
             playNote(key)
 
-    def onClickTrack(self, ev, ):
-        print(self.tilemode)
+    def convertevent(self, ev):
         # change x according to scroll
         ev.x += self.hbar.get()[0] * self.max_Xnote
         # change y according to scroll
         ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+
+        return ev
+
+    def onClickTrack(self, ev, ):
+        print(self.tilemode)
+
+        ev = self.convertevent(ev)
 
         self.lastTileAddYStart = ev.y
         # get the key that was clicked
@@ -800,10 +799,7 @@ class Pianoui(Frame):
             ...
 
     def onDeleteTrack(self, ev, ):
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
 
         key = None
         for i in self.blackkeycoords:
@@ -820,10 +816,7 @@ class Pianoui(Frame):
         self.deleteTile(key, ev.y)
 
     def onReleaseTrack(self, ev, ):
-        # change x according to scroll
-        ev.x += self.hbar.get()[0] * self.max_Xnote
-        # change y according to scroll
-        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        ev = self.convertevent(ev)
         # add tile if mode allows it
         if self.tilemode == "adding":
             self.addTile(self.lastTileAddYStart, ev.y, self.lastTileAddNote)
@@ -1146,9 +1139,14 @@ class Pianoui(Frame):
             # print("sec : ", sec)
             if keyboard.is_pressed("space"):
                 break
-            self.globalV_scroll("moveto",
-                                max(1 - (sec / self.musicLength) - (1 - self.vbar_0), 0)  # convert sec to scroll value
-                                )
+            if self.trackLength != 0:
+                to = max(1 - (sec / self.musicLength) - (1 - self.vbar_0), 0)  # convert sec to scroll value
+            else:
+                to = 0
+            self.globalV_scroll("moveto", to)
+
+            to = self.rulerCanvas.winfo_height() - sec * 100
+            self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerCanvas.winfo_width(), to, fill="red")
 
             stream.write(data)
             data = wf.readframes(CHUNK)
@@ -1160,6 +1158,7 @@ class Pianoui(Frame):
 
         print("done")
         p.terminate()
+        self.loadRuler()
         self.isplaying = False
 
 
