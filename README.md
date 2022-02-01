@@ -42,6 +42,8 @@ pipwin install pyaudio
 <ul>
  <li>Hit space twice to play the music</li>
  <li>Hit space to pause the playing music</li>
+ <li>Ctrl-c on a tile to copy it</li>
+ <li>Ctrl-v to paste it on any notes</li>
 </ul>
 
 <h3>Menu bar :</h3>
