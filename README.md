@@ -38,7 +38,7 @@ pipwin install pyaudio
  <li>Scroll with the mouse wheel / scroll bar on the lower part to scroll the piano notes</li>
 </ul>
  
-<h3>Keyys :</h3>
+<h3>Keys :</h3>
 <ul>
  <li>Hit space twice to play the music</li>
  <li>Hit space to pause the playing music</li>
