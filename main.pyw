@@ -165,7 +165,7 @@ class Pianoui(Frame):
                     if tile[0] < ev.y < tile[1]:
                         # increase intensity of 1
                         self.blackkeycoords[i][4][index][2] += 1
-                        if self.blackkeycoords[i][4][index][2] > 16:
+                        if self.blackkeycoords[i][4][index][2] > 8:
                             self.blackkeycoords[i][4][index][2] = 1
                         self.renderNote(key)  # redraw the key
                         break
@@ -181,7 +181,7 @@ class Pianoui(Frame):
                         if tile[0] < ev.y < tile[1]:
                             # increase intensity of 1
                             self.whitekeycoords[i][4][index][2] += 1
-                            if self.whitekeycoords[i][4][index][2] > 16:
+                            if self.whitekeycoords[i][4][index][2] > 8:
                                 self.whitekeycoords[i][4][index][2] = 1
                             self.renderNote(key)  # redraw the key
                             break
@@ -207,7 +207,7 @@ class Pianoui(Frame):
                         # increase intensity of 1
                         self.blackkeycoords[i][4][index][2] -= 1
                         if self.blackkeycoords[i][4][index][2] < 1:
-                            self.blackkeycoords[i][4][index][2] = 16
+                            self.blackkeycoords[i][4][index][2] = 8
                         self.renderNote(key)  # redraw the key
                         break
                 break
@@ -223,7 +223,7 @@ class Pianoui(Frame):
                             # increase intensity of 1
                             self.whitekeycoords[i][4][index][2] -= 1
                             if self.whitekeycoords[i][4][index][2] < 1:
-                                self.whitekeycoords[i][4][index][2] = 16
+                                self.whitekeycoords[i][4][index][2] = 8
                             self.renderNote(key)  # redraw the key
                             break
                     break
@@ -745,13 +745,13 @@ class Pianoui(Frame):
             self.whitekeycoords[key][4][index] = coordinates
             self.renderNote(key)
 
-    def addTile(self, y1, y2, note, intensity=8):
+    def addTile(self, y1, y2, note, intensity=4):
         # add rectangle on track canvas according to note, y1, y2
         # if note is in black key coords or white key coords, add rectangle
         print("add tile")
         interval = [y1, y2]
         interval.sort()
-        # add intensity (1 to 16)
+        # add intensity (1 to 8)
         interval.append(intensity)
         if note in self.blackkeycoords:
             self.blackkeycoords[note][4].append(interval)
@@ -921,7 +921,7 @@ class Pianoui(Frame):
 
                 start = min(sides)
                 duration = (max(sides) - min(sides))
-                self.piano.addintervaltotrack(note, intensity, start, duration)
+                self.piano.addintervaltotrack(note, intensity*2, start, duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
         # then white keys
         for key in self.whitekeycoords:
@@ -948,7 +948,7 @@ class Pianoui(Frame):
                 duration = (max(sides) - min(sides))
 
                 print("note : ", note, "intensity : ", intensity, "start : ", start, "duration : ", duration)
-                self.piano.addintervaltotrack(note, intensity, start, duration)
+                self.piano.addintervaltotrack(note, intensity*2, start, duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
     def onExport(self, filename=None):
         # prompt user for file name, default is output.mp3
