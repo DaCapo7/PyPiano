@@ -97,6 +97,7 @@ class Pianoui(Frame):
         self.piano = pypiano.Piano()
 
         self.vbar_0 = None
+        self.copyData = []
 
         self.isplaying = False
         self.rulerCanvas = None
@@ -184,6 +185,9 @@ class Pianoui(Frame):
         self.keysCanvas.bind("<Motion>", onNotMoveTrack)
         self.rulerCanvas.bind("<Motion>", onNotMoveTrack)
 
+        root.bind("<Control-c>", self.copy)
+        root.bind("<Control-v>", self.paste)
+
         root.bind("<Double-space>", self.onSpace)
 
         # bind up and down arrow keys to track
@@ -195,6 +199,50 @@ class Pianoui(Frame):
             pass
         else:
             self.onPlay()
+
+    def whatclicked(self, ev):
+        ev.x += self.hbar.get()[0] * self.max_Xnote
+        # change y according to scroll
+        ev.y -= (1 - self.vbar.get()[1]) * self.trackheight
+        key = None
+        clicked = None
+        for i in self.blackkeycoords:
+            if self.blackkeycoords[i][0] < ev.x < self.blackkeycoords[i][2]:
+                key = i
+                clicked = [key, None]
+
+                for index, tile in enumerate(self.blackkeycoords[i][4]):
+                    if tile[0] < ev.y < tile[1]:
+                        clicked = [key, index]
+                break
+        # do same for white keys
+        if key is None:
+            for i in self.whitekeycoords:
+                if self.whitekeycoords[i][0] < ev.x < self.whitekeycoords[i][2]:
+                    key = i
+                    clicked = [key, None]
+
+                    # if ev.y is around one side of the key, set mode to editing and give necessary info
+                    for index, tile in enumerate(self.whitekeycoords[i][4]):
+                        if tile[0] < ev.y < tile[1]:
+                            clicked = [key, index]
+                    break
+
+        return clicked
+
+    def copy(self, ev):
+        clicked = self.whatclicked(ev)
+        if "#" in clicked[0]:
+            self.copyData = [clicked[0], *self.blackkeycoords[clicked[0]][4][clicked[1]]]
+        else:
+            self.copyData = [clicked[0], *self.whitekeycoords[clicked[0]][4][clicked[1]]]
+        print(self.copyData)
+
+    def paste(self, ev):
+        if self.copyData is not None and self.copyData[1] is not None:
+            key = self.whatclicked(ev)[0]
+
+            self.addTile(self.copyData[1], self.copyData[2], key, self.copyData[3])  # y1, y2, key, intensity
 
     def onIncreaseTrack(self, ev):  # increase intensity of tile
         # change x according to scroll
@@ -821,11 +869,13 @@ class Pianoui(Frame):
         # add intensity (1 to 8)
         interval.append(intensity)
         if note in self.blackkeycoords:
+            print("black key")
             self.blackkeycoords[note][4].append(interval)
 
             self.renderNote(note)
 
         elif note in self.whitekeycoords:
+            print("white key")
             self.whitekeycoords[note][4].append(interval)
 
             self.renderNote(note)
