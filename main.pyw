@@ -4,6 +4,9 @@ import tkinter as tk
 import pyaudio
 import pypiano
 import os
+from pydub import AudioSegment
+import keyboard
+from pydub.playback import play
 
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -49,6 +52,43 @@ def onNotMoveTrack(ev):
     root.config(cursor="")
 
 
+def playNote(key):
+    # buried for the moment, but will be used to play notes (problem = programm not responding at each key press)
+    ...
+    """
+    audioElem = None
+    note = key[:-1]
+    octave = key[-1]
+
+    if note == "B":
+        octave_for_notecreation = int(octave) + 1
+    else:
+        octave_for_notecreation = int(octave)
+
+    if note in recorded_note_list:
+        audioElem = AudioSegment.from_file(
+            "piano/flac/" + note + str(octave_for_notecreation) + "v8" + ".flac")
+    else:
+        index = note_list.index(note)
+        # most proach note in recorded_note_list with note_list
+        for i in recorded_note_list:
+            if note_list.index(i) - index in [-1, 1] or (note == "B" and i == "C"):
+                # reduce or incrase tone by one semitone
+                audioElem = AudioSegment.from_file(
+                    "piano/flac/" + i + str(octave_for_notecreation) + "v8" + ".flac")
+
+                octaves = (index - note_list.index(i)) / 12 + (int(octave) - octave_for_notecreation)
+                new_sample_rate = int(audioElem.frame_rate * (2.0 ** octaves))
+
+                audioElem = audioElem._spawn(audioElem.raw_data,
+                                             overrides={
+                                                 'frame_rate': new_sample_rate})
+                break
+
+    # play audioElem
+    play(audioElem)"""
+
+
 class Pianoui(Frame):
 
     def __init__(self):
@@ -58,6 +98,7 @@ class Pianoui(Frame):
 
         self.vbar_0 = None
 
+        self.isplaying = False
         self.rulerCanvas = None
         self.marginforresize = 8
         self.trackheight = None
@@ -143,9 +184,17 @@ class Pianoui(Frame):
         self.keysCanvas.bind("<Motion>", onNotMoveTrack)
         self.rulerCanvas.bind("<Motion>", onNotMoveTrack)
 
+        root.bind("<Double-space>", self.onSpace)
+
         # bind up and down arrow keys to track
         root.bind("<Up>", self.onIncreaseTrack)
         root.bind("<Down>", self.onDecreaseTrack)
+
+    def onSpace(self, event):
+        if self.isplaying:
+            pass
+        else:
+            self.onPlay()
 
     def onIncreaseTrack(self, ev):  # increase intensity of tile
         # change x according to scroll
@@ -621,7 +670,11 @@ class Pianoui(Frame):
                 if self.whitekeycoords[i][0] < ev.x < self.whitekeycoords[i][2]:
                     key = i
                     break
+
         print(key)
+        # play the note
+        if key is not None:
+            playNote(key)
 
     def onClickTrack(self, ev, ):
         print(self.tilemode)
@@ -1017,6 +1070,7 @@ class Pianoui(Frame):
 
     def onPlay(self):
         # play the piano and scroll at the same time
+        self.isplaying = True
         self.onExport(filename="./tempPlay.wav")
 
         wf = wave.open("./tempPlay.wav", 'rb')
@@ -1040,6 +1094,8 @@ class Pianoui(Frame):
         data = wf.readframes(CHUNK)
         while len(data) > 0:
             # print("sec : ", sec)
+            if keyboard.is_pressed("space"):
+                break
             self.globalV_scroll("moveto",
                                 max(1 - (sec / self.musicLength) - (1 - self.vbar_0), 0)  # convert sec to scroll value
                                 )
@@ -1052,10 +1108,9 @@ class Pianoui(Frame):
         stream.stop_stream()
         stream.close()
 
-        self.globalV_scroll("moveto", firstScroll)
-
         print("done")
         p.terminate()
+        self.isplaying = False
 
 
 root = Tk()
