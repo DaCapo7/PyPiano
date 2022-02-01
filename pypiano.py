@@ -24,13 +24,16 @@ with warnings.catch_warnings(record=True) as w:
             print("Downloading ffmpeg")
             r = requests.get(url, allow_redirects=True)
             print("Downloaded")
-            os.mkdir("downloads")
+            if "downloads" not in os.listdir():
+                os.mkdir("downloads")
             open('./downloads/ffmpeg.7z', 'wb').write(r.content)
             print("Extracting ffmpeg")
             Archive('./downloads/ffmpeg.7z').extractall('./downloads/')
             # moves ffmpeg/bin/ffmpeg.exe to ffmpeg.exe
             print("Moving ffmpeg")
             shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffmpeg.exe', './ffmpeg.exe')
+            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffprobe.exe', './ffprobe.exe')
+            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffplay.exe', './ffplay.exe')
             # removes ffmpeg folder
             print("Removing ffmpeg folder")
             os.remove('./downloads/ffmpeg.7z')
@@ -75,8 +78,9 @@ class KeyTrack:
         # check if intensity is in the list audioElem if not create it
         if intensity not in self.audioElem:
             if self.note in recorded_note_list:
+                print("FILE :" "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
                 self.audioElem[intensity] = AudioSegment.from_file(
-                    "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
+                    "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
             else:
                 index = note_list.index(self.note)
                 # most proach note in recorded_note_list with note_list
@@ -84,7 +88,7 @@ class KeyTrack:
                     if note_list.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
                         # reduce or incrase tone by one semitone
                         self.audioElem[intensity] = AudioSegment.from_file(
-                            "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
+                            "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
 
                         octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
                         new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
@@ -125,8 +129,8 @@ class KeyTrack:
             if intensity not in self.audioElem:
                 if self.note in recorded_note_list:
                     self.audioElem[intensity] = AudioSegment.from_file(
-                        "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(
-                            intensity) + ".wav")
+                        "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(
+                            intensity) + ".flac")
                 else:
                     index = note_list.index(self.note)
                     # most proach note in recorded_note_list with note_list
@@ -134,8 +138,8 @@ class KeyTrack:
                         if note_list.index(i) - index in [-1, 1]:
                             # reduce or incrase tone by one semitone
                             self.audioElem[intensity] = AudioSegment.from_file(
-                                "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(
-                                    intensity) + ".wav")
+                                "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(
+                                    intensity) + ".flac")
 
                             octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
                             new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
