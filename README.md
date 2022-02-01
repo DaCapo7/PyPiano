@@ -37,6 +37,12 @@ pipwin install pyaudio
  <li>Scroll with mouse wheel on the upper part to scroll it (you can also use the scrollbar at the right). There is a ruler that helps you to figure out at what time you are</li>
  <li>Scroll with the mouse wheel / scroll bar on the lower part to scroll the piano notes</li>
 </ul>
+ 
+<h3>Keyys :</h3>
+<ul>
+ <li>Hit space twice to play the music</li>
+ <li>Hit space to pause the playing music</li>
+</ul>
 
 <h3>Menu bar :</h3>
 <ul>
