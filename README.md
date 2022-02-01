@@ -2,7 +2,7 @@
 Synthesia but open source, made in python and free
 ![presetntation](https://user-images.githubusercontent.com/72820204/151807839-82f8d3b8-2919-443b-a6e1-0c0b0a4f67d1.png)
 
-Requirements are in requirements.txt
+Requirements are in requirements.txt, <b>You NEED python 3.10 or higher</b>
 If you struggle with installation of pyaudio, run :
 <br>
 <code>

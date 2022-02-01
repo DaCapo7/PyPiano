@@ -1,3 +1,4 @@
 pydub==0.25.1
 pyunpack==0.2.2
 requests==2.27.1
+pyaudio==0.2.11
