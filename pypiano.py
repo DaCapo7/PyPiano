@@ -1,5 +1,46 @@
-from pydub import AudioSegment
 import json
+import warnings
+import tkinter as tk
+import requests
+from pyunpack import Archive
+import shutil
+import os
+
+with warnings.catch_warnings(record=True) as w:
+    warnings.simplefilter("always")
+    from pydub import AudioSegment
+    if len(w) and type(w[0].message) == RuntimeWarning:
+        # Add warning window, if yes, download ffmpeg, if no, continue (maybe it will not work)
+        download = tk.messagebox.askyesno(title="No ffmpeg found", message="Couldn't find ffmpeg or avconv - defaulting "
+                                                                   "to ffmpeg, but may not work\nWould you like"
+                                                                   " to download it (do it if play or export "
+                                                                   "doesn't work)?", )
+        if download:
+            tk.messagebox.showinfo(title="Downloading ffmpeg", message="Downloading ffmpeg, please close and wait "
+                                                                       "until a new "
+                                                                       "message appears")
+            url = "https://github.com/GyanD/codexffmpeg/releases/download/2022-01-30-git-1530b3f566/ffmpeg-2022-01-30" \
+                  "-git-1530b3f566-essentials_build.7z"
+            print("Downloading ffmpeg")
+            r = requests.get(url, allow_redirects=True)
+            print("Downloaded")
+            open('./downloads/ffmpeg.7z', 'wb').write(r.content)
+            print("Extracting ffmpeg")
+            Archive('./downloads/ffmpeg.7z').extractall('./downloads/')
+            # moves ffmpeg/bin/ffmpeg.exe to ffmpeg.exe
+            print("Moving ffmpeg")
+            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffmpeg.exe', './ffmpeg.exe')
+            # removes ffmpeg folder
+            print("Removing ffmpeg folder")
+            os.remove('./downloads/ffmpeg.7z')
+            shutil.rmtree('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build')
+            print("Done")
+            tk.messagebox.showinfo(title="Downloading ffmpeg", message="Done downloading ffmpeg, please restart the app")
+            exit()
+
+
+
+
 
 note_list = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 recorded_note_list = ["C", "D#", "F#", "A"]
@@ -68,7 +109,7 @@ class KeyTrack:
             octave_for_notecreation = int(self.octave) + 1
         else:
             octave_for_notecreation = int(self.octave)
-        print("octave_for_notecreation " + str(octave_for_notecreation), "before", self.note ,self.octave)
+        print("octave_for_notecreation " + str(octave_for_notecreation), "before", self.note, self.octave)
         # if no tracklist return empty track
         if len(self.tracklist) == 0:
             return AudioSegment.silent()
@@ -83,7 +124,8 @@ class KeyTrack:
             if intensity not in self.audioElem:
                 if self.note in recorded_note_list:
                     self.audioElem[intensity] = AudioSegment.from_file(
-                        "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
+                        "piano/44.1khz16bit/" + self.note + str(octave_for_notecreation) + "v" + str(
+                            intensity) + ".wav")
                 else:
                     index = note_list.index(self.note)
                     # most proach note in recorded_note_list with note_list
@@ -91,7 +133,8 @@ class KeyTrack:
                         if note_list.index(i) - index in [-1, 1]:
                             # reduce or incrase tone by one semitone
                             self.audioElem[intensity] = AudioSegment.from_file(
-                                "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".wav")
+                                "piano/44.1khz16bit/" + i + str(octave_for_notecreation) + "v" + str(
+                                    intensity) + ".wav")
 
                             octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
                             new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
@@ -104,7 +147,7 @@ class KeyTrack:
 
             # add sound to track at position and stop at end of duration
             notetrack = notetrack.overlay(
-                self.audioElem[intensity][0:sound[2] * 1000],
+                self.audioElem[intensity][0:sound[2] * 1000].fade_out(100),
                 # sound[0] is the sound, sound[1] is the position, sound[2] is the duration
                 position=sound[1] * 1000
             )
