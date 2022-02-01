@@ -230,7 +230,7 @@ class Pianoui(Frame):
                     break
 
     def track_wheel(self, event):
-        initial = self.vbar.get()[0] + ((event.delta / 120)*-100 / self.trackheight)  # moves 100 pixels per scroll
+        initial = self.vbar.get()[0] + ((event.delta / 120) * -100 / self.trackheight)  # moves 100 pixels per scroll
         # cast value to min and max
         if initial < 0:
             initial = 0
@@ -261,6 +261,11 @@ class Pianoui(Frame):
                                              trackheight,
                                              fill='black',
                                              width=1)
+                self.keysCanvas.create_text(oct_start + 0 * self.whitekeywidth + self.whitekeywidth / 2,
+                                            cheight - self.whitekeyheight / 7,
+                                            text='C8',
+                                            fill='black',
+                                            font=('Helvetica', 10))
 
                 # add key to keycoords
                 self.whitekeycoords["C" + str(o)] = (oct_start + 0 * self.whitekeywidth,
@@ -278,6 +283,12 @@ class Pianoui(Frame):
                                                          oct_start + (i + 1) * self.whitekeywidth,
                                                          cheight - self.whitekeyheight,
                                                          fill='white')
+                    if i == 0:
+                        self.keysCanvas.create_text(oct_start + i * self.whitekeywidth + self.whitekeywidth / 2,
+                                                    cheight - self.whitekeyheight / 7,
+                                                    text='C' + str(o),
+                                                    fill='black',
+                                                    font=('Helvetica', 10))
                     # create vertical line at left of key that continue for 1000 pixels height only for C and F
                     if i % 7 == 0 or i % 7 == 3:
                         self.trackCanvas.create_line(oct_start + i * self.whitekeywidth,
@@ -564,7 +575,8 @@ class Pianoui(Frame):
                 # if ev.y is around one side of the key, set mode to editing and give necessary info
                 # also check if the tile should be moved
                 for index, tile in enumerate(self.blackkeycoords[i][4]):
-                    if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
+                    if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[
+                        1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                         mode = "editing"
                     elif tile[0] < ev.y < tile[1]:
                         mode = "moving"
@@ -577,7 +589,8 @@ class Pianoui(Frame):
 
                     # if ev.y is around one side of the key, set mode to editing and give necessary info
                     for index, tile in enumerate(self.whitekeycoords[i][4]):
-                        if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
+                        if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[
+                            1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                             mode = "editing"
                         elif tile[0] < ev.y < tile[1]:
                             mode = "moving"
@@ -922,7 +935,8 @@ class Pianoui(Frame):
 
                 start = min(sides)
                 duration = (max(sides) - min(sides))
-                self.piano.addintervaltotrack(note, intensity*2, start, duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
+                self.piano.addintervaltotrack(note, intensity * 2, start,
+                                              duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
         # then white keys
         for key in self.whitekeycoords:
@@ -949,7 +963,8 @@ class Pianoui(Frame):
                 duration = (max(sides) - min(sides))
 
                 print("note : ", note, "intensity : ", intensity, "start : ", start, "duration : ", duration)
-                self.piano.addintervaltotrack(note, intensity*2, start, duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
+                self.piano.addintervaltotrack(note, intensity * 2, start,
+                                              duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
     def onExport(self, filename=None):
         # prompt user for file name, default is output.mp3
