@@ -59,6 +59,7 @@ class Pianoui(Frame):
         self.vbar_0 = None
 
         self.rulerCanvas = None
+        self.marginforresize = 8
         self.trackheight = None
         self.trackLength = None
         self.vbar = None
@@ -563,7 +564,7 @@ class Pianoui(Frame):
                 # if ev.y is around one side of the key, set mode to editing and give necessary info
                 # also check if the tile should be moved
                 for index, tile in enumerate(self.blackkeycoords[i][4]):
-                    if tile[0] - 5 < ev.y < tile[0] + 5 or tile[1] - 5 < ev.y < tile[1] + 5:
+                    if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                         mode = "editing"
                     elif tile[0] < ev.y < tile[1]:
                         mode = "moving"
@@ -576,13 +577,13 @@ class Pianoui(Frame):
 
                     # if ev.y is around one side of the key, set mode to editing and give necessary info
                     for index, tile in enumerate(self.whitekeycoords[i][4]):
-                        if tile[0] - 5 < ev.y < tile[0] + 5 or tile[1] - 5 < ev.y < tile[1] + 5:
+                        if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize or tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                             mode = "editing"
                         elif tile[0] < ev.y < tile[1]:
                             mode = "moving"
                     break
 
-        if mode == "adding":
+        if mode == "adding" or mode == "default":
             root.config(cursor="crosshair")
         elif mode == "editing":
             root.config(cursor="double_arrow")
@@ -627,10 +628,10 @@ class Pianoui(Frame):
                 # if ev.y is around one side of the key, set mode to editing and give necessary info
                 # also check if the tile should be moved
                 for index, tile in enumerate(self.blackkeycoords[i][4]):
-                    if tile[0] - 5 < ev.y < tile[0] + 5:
+                    if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize:
                         self.tilemode = "editing"  # set mode to editing
                         self.whatedited = [key, index, 0]  # give necesssary info to edit
-                    elif tile[1] - 5 < ev.y < tile[1] + 5:
+                    elif tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                         self.tilemode = "editing"  # set mode to editing
                         self.whatedited = [key, index, 1]  # give necesssary info to edit
                     elif tile[0] < ev.y < tile[1]:
@@ -645,11 +646,11 @@ class Pianoui(Frame):
 
                     # if ev.y is around one side of the key, set mode to editing and give necessary info
                     for index, tile in enumerate(self.whitekeycoords[i][4]):
-                        if tile[0] - 5 < ev.y < tile[0] + 5:
+                        if tile[0] - self.marginforresize < ev.y < tile[0] + self.marginforresize:
                             print("editing")
                             self.tilemode = "editing"  # set mode to editing
                             self.whatedited = [key, index, 0]  # give necesssary info to edit
-                        if tile[1] - 5 < ev.y < tile[1] + 5:
+                        if tile[1] - self.marginforresize < ev.y < tile[1] + self.marginforresize:
                             print("edditing")
                             self.tilemode = "editing"  # set mode to editing
                             self.whatedited = [key, index, 1]  # give necesssary info to edit
