@@ -1006,7 +1006,7 @@ class Pianoui(Frame):
     def loadToPypiano(self):
         # set all the track note to the piano from pypiano and export to file
         # start with black keys
-        self.piano = pypiano.Piano()
+        self.piano.reset_tracks()
         self.piano.musicLength = self.musicLength
         for key in self.blackkeycoords:
             for interval in self.blackkeycoords[key][4]:

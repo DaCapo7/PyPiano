@@ -63,6 +63,9 @@ class KeyTrack:
         if verbose:
             print("KeyTrack created : " + self.note + str(self.octave))
 
+    def reset_track(self):
+        self.tracklist = []
+
     def addintervaltotrack(self, intensity, position, duration):
         if self.note == "B":
             octave_for_notecreation = int(self.octave) + 1
@@ -180,6 +183,10 @@ class Piano:
         print(len(range(-3, 85)))
         for i in range(-3, 85):
             self.keys.append(KeyTrack(i, verbose))
+
+    def reset_tracks(self):
+        for key in self.keys:
+            key.reset_track()
 
     def printkey(self, index):
         print(self.keys[index])
