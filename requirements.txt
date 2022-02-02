@@ -2,3 +2,6 @@ pydub==0.25.1
 pyunpack==0.2.2
 requests==2.27.1
 pyaudio==0.2.11
+keyboard==0.13.5
+pyunpack==0.2.2
+patool==1.12
