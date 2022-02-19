@@ -93,12 +93,15 @@ class Pianoui(Frame):
 
     def __init__(self):
         # dict that holds coordinates of each key with format name: (x, y, end_x, end_y)
+        self.last_landmark = None
         self.keyboardwidth = None
         self.musicLength = None
         self.piano = pypiano.Piano()
 
         self.vbar_0 = None
         self.copyData = []
+
+        self.unity = 1 / 16 * 100  # = a Semiquaver
 
         self.isplaying = False
         self.rulerCanvas = None
@@ -119,8 +122,8 @@ class Pianoui(Frame):
 
         self.background = "#c7af67"
 
-        self.whitekeycoords = {}
-        self.blackkeycoords = {}
+        self.whitekeycoords = {}  # format name: (x, y, end_x, end_y, interval)
+        self.blackkeycoords = {}  # format name: (x, y, end_x, end_y, interval)
         self.keylist = []
         self.whitekeyheight = 300
         self.whitekeywidth = 70
@@ -134,6 +137,8 @@ class Pianoui(Frame):
         self.initCanvas()
 
     def initCanvas(self, length=None):
+        # base = beat 60 for quarter note; 100 pixel per beat
+        # minimal length for one tile is Semiquaver (1/16)
 
         self.keysCanvas = Canvas(root, bg='#111111', highlightthickness=0)
         # set keysCanvas size to root size
@@ -615,7 +620,8 @@ class Pianoui(Frame):
 
     def loadRuler(self):
         sec = 0
-        self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerWidth, self.trackLength, fill='#FFFFFF')
+        self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerWidth, self.trackLength,
+                                          fill='#FFFFFF')
         for bar in range(root.winfo_height() - self.whitekeyheight, self.trackLength, -100):
             self.rulerCanvas.create_line(0, bar, self.rulerWidth + 1, bar, fill='#FF0000', width=1)
             # add text that is time in seconds
@@ -662,7 +668,6 @@ class Pianoui(Frame):
         for i in self.blackkeycoords:
             if self.blackkeycoords[i][0] < ev.x < self.blackkeycoords[i][2]:
                 key = i
-
                 # if ev.y is around one side of the key, set mode to editing and give necessary info
                 # also check if the tile should be moved
                 for index, tile in enumerate(self.blackkeycoords[i][4]):
@@ -693,6 +698,24 @@ class Pianoui(Frame):
             root.config(cursor="double_arrow")
         elif mode == "moving":
             root.config(cursor="fleur")
+
+        if self.tilemode == "adding":
+            ev.y = self.makePixelAligned(ev.y)
+            self.justDrawNotePreview(ev.y, self.lastTileAddNote)
+
+    def justDrawNotePreview(self, y, note):
+        y1 = y
+        y2 = self.lastTileAddYStart
+
+        if note in self.blackkeycoords:
+            print("black key")
+            self.renderNote(note)
+            self.renderTile(note, y1, y2, 4)
+
+        elif note in self.whitekeycoords:
+            print("white key")
+            self.renderNote(note)
+            self.renderTile(note, y1, y2, 4)
 
     def onClickKey(self, ev, ):
         ev = self.convertevent(ev)
@@ -781,13 +804,15 @@ class Pianoui(Frame):
 
         # if we have to create a track
         if self.tilemode == "adding":
+            # align y
+            ev.y = self.makePixelAligned(ev.y)
             # create a little line on the track to show where the tile is going to be
             if key in self.blackkeycoords:
                 self.trackCanvas.create_line(self.blackkeycoords[key][0], ev.y, self.blackkeycoords[key][2], ev.y,
                                              fill="black", width=1)
             elif key in self.whitekeycoords:
 
-                x1, x2 = self.get_x1_x2(key)
+                x1, x2 = self.get_x1_x2_whitekey(key)
 
                 self.trackCanvas.create_line(x1, ev.y, x2, ev.y, fill="black", width=1)
             else:
@@ -827,6 +852,9 @@ class Pianoui(Frame):
             self.tilemode = "default"
 
     def moveTile(self, y, key, index, lastY):
+        # align y and lastY
+        y = self.makePixelAligned(y)
+        lastY = self.makePixelAligned(lastY)
         # move tile
         if key in self.blackkeycoords:
             toAdd = y - lastY
@@ -844,7 +872,7 @@ class Pianoui(Frame):
             toAdd = y - lastY
             coordinates = [x + toAdd for x in self.whitekeycoords[key][4][index][:2]]
             # erase old tile
-            x1, x2 = self.get_x1_x2(key)
+            x1, x2 = self.get_x1_x2_whitekey(key)
             self.trackCanvas.create_rectangle(x1 + 1, max(self.whitekeycoords[key][4][index][:2]) + 1,
                                               x2, min(self.whitekeycoords[key][4][index][:2]),
                                               fill=self.background, width=0)
@@ -853,9 +881,17 @@ class Pianoui(Frame):
             self.whitekeycoords[key][4][index] = coordinates
             self.renderNote(key)
 
+    def makePixelAligned(self, y):
+        # make y the nearest multiple of self.unity
+        return round(y / self.unity) * self.unity
+
     def addTile(self, y1, y2, note, intensity=4):
         # add rectangle on track canvas according to note, y1, y2
         # if note is in black key coords or white key coords, add rectangle
+        # make sure y1 and y2 are pixel aligned
+        y1 = self.makePixelAligned(y1)
+        y2 = self.makePixelAligned(y2)
+
         print("add tile")
         interval = [y1, y2]
         interval.sort()
@@ -877,7 +913,7 @@ class Pianoui(Frame):
             print("not a key")
         self.tilemode = "default"
 
-    def get_x1_x2(self, note):
+    def get_x1_x2_whitekey(self, note):
         around = findBlackKeysAroundWhite(note)
         if around[0] is not None:
             x1 = self.blackkeycoords[around[0] + note[1]][2]
@@ -904,7 +940,7 @@ class Pianoui(Frame):
 
         elif note in self.whitekeycoords:
 
-            x1, x2 = self.get_x1_x2(note)
+            x1, x2 = self.get_x1_x2_whitekey(note)
             self.trackCanvas.create_rectangle(x1, y1, x2, y2, fill="white")
             self.trackCanvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=str(intensity), fill="black")
 
@@ -913,13 +949,22 @@ class Pianoui(Frame):
 
     def renderNote(self, note):
         if "#" in note:
+            self.trackCanvas.create_rectangle(self.blackkeycoords[note][0], root.winfo_height() - self.whitekeyheight,
+                                              self.blackkeycoords[note][2], self.trackLength,
+                                              fill=self.background)
             for interval in self.blackkeycoords[note][4]:
                 self.renderTile(note, *interval)
         else:
+            x1, x2 = self.get_x1_x2_whitekey(note)
+            self.trackCanvas.create_rectangle(x1, root.winfo_height() - self.whitekeyheight,
+                                              x2, self.trackLength,
+                                              fill=self.background)
             for interval in self.whitekeycoords[note][4]:
                 self.renderTile(note, *interval)
 
     def editTile(self, y2, key, index, side):
+        # align y2
+        y2 = self.makePixelAligned(y2)
         # edit tile according to key, index, side until y
         # hide old tile with rectangle of color background
         if "#" in key:
@@ -940,7 +985,7 @@ class Pianoui(Frame):
 
             self.tilemode = "default"
         else:
-            x1, x2 = self.get_x1_x2(key)
+            x1, x2 = self.get_x1_x2_whitekey(key)
 
             self.trackCanvas.create_rectangle(x1 + 1, max(self.whitekeycoords[key][4][index][:2]) + 1,
                                               x2, min(self.whitekeycoords[key][4][index][:2]),
@@ -979,7 +1024,7 @@ class Pianoui(Frame):
             self.whitekeycoords[key][4].reverse()
             for i, interval in enumerate(self.whitekeycoords[key][4]):
                 if min(interval[:2]) <= y <= max(interval[:2]):
-                    x1, x2 = self.get_x1_x2(key)
+                    x1, x2 = self.get_x1_x2_whitekey(key)
 
                     self.trackCanvas.create_rectangle(x1 + 1, max(self.whitekeycoords[key][4][i][:2]) + 1,
                                                       x2, min(self.whitekeycoords[key][4][i][:2]),
@@ -1144,11 +1189,13 @@ class Pianoui(Frame):
             else:
                 to = 0
             self.globalV_scroll("moveto", to)
+            if to == 0:
+                to = self.rulerCanvas.winfo_height() - sec * 100
+                self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerCanvas.winfo_width(),
+                                                  to,
+                                                  fill="red")
 
-            to = self.rulerCanvas.winfo_height() - sec * 100
-            self.rulerCanvas.create_rectangle(0, self.rulerCanvas.winfo_height(), self.rulerCanvas.winfo_width(), to, fill="red")
-
-            stream.write(data)
+            stream.write(data)  # play stream
             data = wf.readframes(CHUNK)
 
             sec += CHUNK / wf.getframerate()
