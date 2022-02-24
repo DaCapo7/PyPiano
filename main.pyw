@@ -340,7 +340,6 @@ class Pianoui(Frame):
     def drawKeys(self, cheight, trackheight):
         # decrease of -5*whitewitdht to get the right position of the first white key (A0)
         oct_start = -5 * self.whitekeywidth
-        keynum = 0
         # for 8 octaves
         for o in range(0, 9):
             if o == 8:
@@ -587,7 +586,11 @@ class Pianoui(Frame):
                                                                            [])
 
             oct_start += self.whitekeywidth * 7
+        # removes 5 first elements of whitekeycoords because we don't need them
+        for i in ["C0", "D0", "E0", "F0", "G0"]:
+            del self.whitekeycoords[i]
 
+        print(self.whitekeycoords)
         # draw the ruler
         self.loadRuler()
 
@@ -920,6 +923,7 @@ class Pianoui(Frame):
         else:
             x1 = self.whitekeycoords[note][0]
         if around[1] is not None:
+            print(note, around)
             x2 = self.blackkeycoords[around[1] + note[1]][0]
         else:
             x2 = self.whitekeycoords[note][2]
@@ -1138,7 +1142,7 @@ class Pianoui(Frame):
             for key in self.piano.keys:
                 note = key.note + str(key.octave)
                 for interval in key.tracklist:
-                    intensity = interval[0]
+                    intensity = int(interval[0] / 2)  # because intensity is 2,4,6,8,10,12,14,16
                     sides = [(root.winfo_height() - self.whitekeyheight) - side for side in
                              [interval[1] * 100, (interval[1] + interval[2]) * 100]]
                     sides.sort()
@@ -1180,6 +1184,9 @@ class Pianoui(Frame):
         firstScroll = self.vbar.get()[0]
 
         data = wf.readframes(CHUNK)
+
+       
+
         while len(data) > 0:
             # print("sec : ", sec)
             if keyboard.is_pressed("space"):
