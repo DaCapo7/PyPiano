@@ -1040,17 +1040,20 @@ class Pianoui(Frame):
                     self.renderNote(key)
                     break
 
-    def onSave(self):
-        filename = filedialog.asksaveasfilename(initialfile="music.pypiano",
-                                                title="Select file to save your work",
-                                                filetypes=[("Pypiano file", "*.pypiano)")]
-                                                )
+    def onSave(self, filename=None):
+        if filename == None:
+            filename = filedialog.asksaveasfilename(initialfile="music.pypiano",
+                                                    title="Select file to save your work",
+                                                    filetypes=[("Pypiano file", "*.pypiano)")]
+                                                    )
 
         if filename:
             if not filename.endswith(".pypiano"):
                 filename += ".pypiano"
             self.loadToPypiano()
             self.piano.save(filename)
+
+        filename = None
 
     def loadToPypiano(self):
         # set all the track note to the piano from pypiano and export to file
@@ -1125,10 +1128,11 @@ class Pianoui(Frame):
             self.loadToPypiano()
             self.piano.output_to_wav(filename)
 
-    def onLoad(self):
+    def onLoad(self, filename=None):
         # load file
         # inverse as loadToPypiano()
-        filename = filedialog.askopenfilename(title="Select file to load", filetypes=[("Pypiano file", "*.pypiano")])
+        if filename is None:
+            filename = filedialog.askopenfilename(title="Select file to load", filetypes=[("Pypiano file", "*.pypiano")])
         if filename:
             self.piano.load(filename)
 
@@ -1153,6 +1157,8 @@ class Pianoui(Frame):
 
             self.renderWholePiano()
 
+        filename = None
+
     def renderWholePiano(self):
         # render the whole piano
         for note in self.blackkeycoords:
@@ -1161,6 +1167,12 @@ class Pianoui(Frame):
             self.renderNote(note)
 
     def onPlay(self):
+        # this is needed in order to have a smooth music (any other solution?) : to trigger the bug, remove theses 3 lines, make a music with +10 notes and play it
+        self.onSave("temp.pypiano")
+        self.onLoad("temp.pypiano")
+        # update canvas
+        self.trackCanvas.update()
+
         # play the piano and scroll at the same time
         self.isplaying = True
         self.onExport(filename="./tempPlay.wav")
@@ -1184,8 +1196,6 @@ class Pianoui(Frame):
         firstScroll = self.vbar.get()[0]
 
         data = wf.readframes(CHUNK)
-
-       
 
         while len(data) > 0:
             # print("sec : ", sec)
