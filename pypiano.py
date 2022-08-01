@@ -6,6 +6,8 @@ from pyunpack import Archive
 import shutil
 import os
 
+from utils.constant import RECORDED_NOTE_LIST,NOTE_LIST
+
 with warnings.catch_warnings(record=True) as w:
     warnings.simplefilter("always")
     from pydub import AudioSegment
@@ -46,15 +48,13 @@ with warnings.catch_warnings(record=True) as w:
 
 
 
-note_list = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-recorded_note_list = ["C", "D#", "F#", "A"]
 
 
 class KeyTrack:
     def __init__(self, index, verbose=False):
         self.index = index
 
-        self.note = note_list[index % 12]
+        self.note = NOTE_LIST[index % 12]
         self.octave = index // 12 + 1
 
         self.tracklist = []
@@ -80,20 +80,20 @@ class KeyTrack:
 
         # check if intensity is in the list audioElem if not create it
         if intensity not in self.audioElem:
-            if self.note in recorded_note_list:
+            if self.note in RECORDED_NOTE_LIST:
                 print("FILE :" "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
                 self.audioElem[intensity] = AudioSegment.from_file(
                     "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
             else:
-                index = note_list.index(self.note)
+                index = NOTE_LIST.index(self.note)
                 # most proach note in recorded_note_list with note_list
-                for i in recorded_note_list:
-                    if note_list.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
+                for i in RECORDED_NOTE_LIST:
+                    if NOTE_LIST.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
                         # reduce or incrase tone by one semitone
                         self.audioElem[intensity] = AudioSegment.from_file(
                             "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
 
-                        octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
+                        octaves = (index - NOTE_LIST.index(i)) / 12 + (self.octave - octave_for_notecreation)
                         new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                         self.audioElem[intensity] = self.audioElem[intensity]._spawn(self.audioElem[intensity].raw_data,
@@ -130,21 +130,21 @@ class KeyTrack:
         for sound in self.tracklist:
             intensity = sound[0]
             if intensity not in self.audioElem:
-                if self.note in recorded_note_list:
+                if self.note in RECORDED_NOTE_LIST:
                     self.audioElem[intensity] = AudioSegment.from_file(
                         "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(
                             intensity) + ".flac")
                 else:
-                    index = note_list.index(self.note)
+                    index = NOTE_LIST.index(self.note)
                     # most proach note in recorded_note_list with note_list
-                    for i in recorded_note_list:
-                        if note_list.index(i) - index in [-1, 1]:
+                    for i in RECORDED_NOTE_LIST:
+                        if NOTE_LIST.index(i) - index in [-1, 1]:
                             # reduce or incrase tone by one semitone
                             self.audioElem[intensity] = AudioSegment.from_file(
                                 "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(
                                     intensity) + ".flac")
 
-                            octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
+                            octaves = (index - NOTE_LIST.index(i)) / 12 + (self.octave - octave_for_notecreation)
                             new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                             self.audioElem[intensity] = self.audioElem[intensity]._spawn(
@@ -170,7 +170,7 @@ class KeyTrack:
 
 def notetoindex(note, octave):
     # return index of note in keylist
-    return note_list.index(note) + 12 * octave - 9
+    return NOTE_LIST.index(note) + 12 * octave - 9
 
 
 class Piano:

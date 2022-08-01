@@ -6,13 +6,12 @@ import pypiano
 import os
 import keyboard
 
+from utils.constant import *
+
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # note list in octave with # of semitones
-note_list = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-recorded_note_list = ["C", "D#", "F#", "A"]
-white_list = ["C", "D", "E", "F", "G", "A", "B"]
-black_list = ["C#", "D#", "F#", "G#", "A#"]
+
 
 
 # we'll have to create a sound when we need it if the note is not in recorded_note_list
@@ -21,7 +20,7 @@ black_list = ["C#", "D#", "F#", "G#", "A#"]
 # piano class
 def note_to_index(note, octave):
     # return index of note in keylist
-    return note_list.index(note) + 12 * octave - 9
+    return NOTE_LIST.index(note) + 12 * octave - 9
 
 
 def find_black_keys_around_white(note):
@@ -391,7 +390,7 @@ class PianoUi(Frame):
                                                      width=1)
 
                     # add key to keycoords
-                    self.whitekeycoords[white_list[i] + str(o)] = (oct_start + i * self.whitekeywidth,
+                    self.whitekeycoords[WHITE_LIST[i] + str(o)] = (oct_start + i * self.whitekeywidth,
                                                                    cheight,
                                                                    oct_start + (i + 1) * self.whitekeywidth,
                                                                    cheight - self.whitekeyheight,
@@ -430,7 +429,7 @@ class PianoUi(Frame):
                                                          width=1)
 
                             # add key to keycoords
-                            self.blackkeycoords[black_list[i] + str(o)] = (oct_start + (
+                            self.blackkeycoords[BLACK_LIST[i] + str(o)] = (oct_start + (
                                     1 + i) * self.whitekeywidth - self.blackkeywidth / 2 - self.blackkeywidth / displacementfactor,
                                                                            cheight - self.whitekeyheight,
                                                                            oct_start + (
@@ -466,7 +465,7 @@ class PianoUi(Frame):
                                                          width=1)
 
                             # add key to keycoords
-                            self.blackkeycoords[black_list[i] + str(o)] = (oct_start + (
+                            self.blackkeycoords[BLACK_LIST[i] + str(o)] = (oct_start + (
                                     1 + i) * self.whitekeywidth - self.blackkeywidth / 2 + self.blackkeywidth / displacementfactor,
                                                                            cheight - self.whitekeyheight,
                                                                            oct_start + (
@@ -502,7 +501,7 @@ class PianoUi(Frame):
                                                          fill='#000000',
                                                          width=1)
                             # add key to keycoords
-                            self.blackkeycoords[black_list[i] + str(o)] = (oct_start + (
+                            self.blackkeycoords[BLACK_LIST[i] + str(o)] = (oct_start + (
                                     2 + i) * self.whitekeywidth - self.blackkeywidth / 2 - self.blackkeywidth / displacementfactor,
                                                                            cheight - self.whitekeyheight,
                                                                            oct_start + (
@@ -538,7 +537,7 @@ class PianoUi(Frame):
                                                              fill='#000000',
                                                              width=1)
                                 # add key to keycoords
-                                self.blackkeycoords[black_list[i] + str(o)] = (oct_start + (
+                                self.blackkeycoords[BLACK_LIST[i] + str(o)] = (oct_start + (
                                         2 + i) * self.whitekeywidth - self.blackkeywidth / 2,
                                                                                cheight - self.whitekeyheight,
                                                                                oct_start + (
@@ -574,7 +573,7 @@ class PianoUi(Frame):
                                                          fill='#000000',
                                                          width=1)
                             # add key to keycoords
-                            self.blackkeycoords[black_list[i] + str(o)] = (oct_start + (
+                            self.blackkeycoords[BLACK_LIST[i] + str(o)] = (oct_start + (
                                     2 + i) * self.whitekeywidth - self.blackkeywidth / 2 + self.blackkeywidth / displacementfactor,
                                                                            cheight - self.whitekeyheight,
                                                                            oct_start + (
