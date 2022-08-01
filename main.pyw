@@ -4,9 +4,7 @@ import tkinter as tk
 import pyaudio
 import pypiano
 import os
-from pydub import AudioSegment
 import keyboard
-from pydub.playback import play
 
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 
