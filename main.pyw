@@ -1225,12 +1225,16 @@ class PianoUi(Frame):
             self.render_note(note)
 
     def on_play(self):
+        hbar_pos = self.hbar.get()[0]
+        
         # this is needed in order to have a smooth music (any other solution?) : to trigger the bug, remove theses 3 lines, make a music with +10 notes and play it
         self.on_save("temp.pypiano")
         self.on_load("temp.pypiano")
+        
         # update canvas
         self.trackCanvas.update()
-
+        self.globalH_scroll("moveto",hbar_pos)
+        
         # play the piano and scroll at the same time
         self.isplaying = True
         self.on_export(filename="./tempPlay.wav")
@@ -1251,7 +1255,7 @@ class PianoUi(Frame):
         wf.readframes(int(sec * wf.getframerate()))
 
         # save first scroll position
-        firstScroll = self.vbar.get()[0]
+        #self.globalH_scroll("moveto", 1- firstScroll)
 
         data = wf.readframes(CHUNK)
 
@@ -1278,7 +1282,7 @@ class PianoUi(Frame):
 
         stream.stop_stream()
         stream.close()
-
+        self.globalV_scroll("moveto",1)
         print("done")
         p.terminate()
         self.load_ruler()
