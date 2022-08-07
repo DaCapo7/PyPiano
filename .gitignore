@@ -3,3 +3,5 @@ __pycache__
 *.exe
 temp.pypiano
 tempPlay.wav
+render/
+PyPiano.code-workspace
