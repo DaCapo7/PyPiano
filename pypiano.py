@@ -196,7 +196,7 @@ class Piano:
 
     def add_interval_to_track(self, index, intensity, position, duration):
         # add interval to keytrack
-        self.keys[index].addintervaltotrack(intensity, position, duration)
+        self.keys[index].add_interval_to_track(intensity, position, duration)
 
     def index_to_note(self, index):
         # return note of key

@@ -2,10 +2,10 @@ import wave
 from tkinter import Tk, Frame, Menu, Canvas, Scrollbar, simpledialog, filedialog
 import tkinter as tk
 import pyaudio
-import pypiano
 import os
 import keyboard
 
+import pypiano
 from utils.constant import *
 from utils.funct import note_to_index
 
@@ -1133,7 +1133,7 @@ class PianoUi(Frame):
 
                 start = min(sides)
                 duration = (max(sides) - min(sides))
-                self.piano.addintervaltotrack(note, intensity * 2, start,
+                self.piano.add_interval_to_track(note, intensity * 2, start,
                                               duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
         # then white keys
@@ -1164,7 +1164,7 @@ class PianoUi(Frame):
 
                 print("note : ", note, "intensity : ", intensity,
                       "start : ", start, "duration : ", duration)
-                self.piano.addintervaltotrack(note, intensity * 2, start,
+                self.piano.add_interval_to_track(note, intensity * 2, start,
                                               duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
     def on_export(self, filename=None):
