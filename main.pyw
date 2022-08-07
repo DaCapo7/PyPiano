@@ -7,14 +7,13 @@ import os
 import keyboard
 
 from utils.constant import *
+from utils.funct import note_to_index
 
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 # piano class
-def note_to_index(note, octave):
-    # return index of note in keylist
-    return NOTE_LIST.index(note) + 12 * octave - 9
+
 
 
 def find_black_keys_around_white(note):
@@ -1112,7 +1111,7 @@ class PianoUi(Frame):
         for key in self.blackkeycoords:
             for interval in self.blackkeycoords[key][4]:
                 print("hey")
-                note = note_to_index(key[:2], int(key[2]))
+                note = note_to_index(NOTE_LIST,key[:2], int(key[2]))
                 intensity = interval[2]
 
                 # calculate the interval in seconds
@@ -1140,7 +1139,7 @@ class PianoUi(Frame):
         # then white keys
         for key in self.whitekeycoords:
             for interval in self.whitekeycoords[key][4]:
-                note = note_to_index(key[0], int(key[1]))
+                note = note_to_index(NOTE_LIST,key[0], int(key[1]))
                 intensity = interval[2]
 
                 # calculate the interval in seconds

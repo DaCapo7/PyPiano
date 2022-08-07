@@ -7,6 +7,7 @@ import shutil
 import os
 
 from utils.constant import RECORDED_NOTE_LIST, NOTE_LIST
+from utils.funct import note_to_index
 
 with warnings.catch_warnings(record=True) as w:
     warnings.simplefilter("always")
@@ -174,10 +175,6 @@ class KeyTrack:
             + "\n".join(map(lambda x: str(x), self.tracklist))
 
 
-def note_to_index(note, octave):
-    # return index of note in keylist
-    return NOTE_LIST.index(note) + 12 * octave - 9
-
 
 class Piano:
     def __init__(self, verbose=False):
@@ -273,4 +270,4 @@ class Piano:
         print("Saved to " + filename)
 
 
-print(note_to_index("C", 0))
+print(note_to_index(NOTE_LIST,"C", 0))
