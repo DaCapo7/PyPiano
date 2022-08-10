@@ -15,7 +15,6 @@ PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 # piano class
 
 
-
 def find_black_keys_around_white(note):
     # return list of black keys around white key
     # particular case for C8 and A0 (on borders)
@@ -1111,7 +1110,7 @@ class PianoUi(Frame):
         for key in self.blackkeycoords:
             for interval in self.blackkeycoords[key][4]:
                 print("hey")
-                note = note_to_index(NOTE_LIST,key[:2], int(key[2]))
+                note = note_to_index(NOTE_LIST, key[:2], int(key[2]))
                 intensity = interval[2]
 
                 # calculate the interval in seconds
@@ -1134,12 +1133,12 @@ class PianoUi(Frame):
                 start = min(sides)
                 duration = (max(sides) - min(sides))
                 self.piano.add_interval_to_track(note, intensity * 2, start,
-                                              duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
+                                                 duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
         # then white keys
         for key in self.whitekeycoords:
             for interval in self.whitekeycoords[key][4]:
-                note = note_to_index(NOTE_LIST,key[0], int(key[1]))
+                note = note_to_index(NOTE_LIST, key[0], int(key[1]))
                 intensity = interval[2]
 
                 # calculate the interval in seconds
@@ -1165,7 +1164,7 @@ class PianoUi(Frame):
                 print("note : ", note, "intensity : ", intensity,
                       "start : ", start, "duration : ", duration)
                 self.piano.add_interval_to_track(note, intensity * 2, start,
-                                              duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
+                                                 duration)  # *2 because intensity is 2,4,6,8,10,12,14,16
 
     def on_export(self, filename=None):
         # prompt user for file name, default is output.mp3
@@ -1226,15 +1225,15 @@ class PianoUi(Frame):
 
     def on_play(self):
         hbar_pos = self.hbar.get()[0]
-        
+
         # this is needed in order to have a smooth music (any other solution?) : to trigger the bug, remove theses 3 lines, make a music with +10 notes and play it
         self.on_save("temp.pypiano")
         self.on_load("temp.pypiano")
-        
+
         # update canvas
         self.trackCanvas.update()
-        self.globalH_scroll("moveto",hbar_pos)
-        
+        self.globalH_scroll("moveto", hbar_pos)
+
         # play the piano and scroll at the same time
         self.isplaying = True
         self.on_export(filename="./tempPlay.wav")
@@ -1282,7 +1281,7 @@ class PianoUi(Frame):
 
         stream.stop_stream()
         stream.close()
-        self.globalV_scroll("moveto",1)
+        self.globalV_scroll("moveto", 1)
         print("done")
         p.terminate()
         self.load_ruler()
