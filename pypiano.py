@@ -6,15 +6,18 @@ from pyunpack import Archive
 import shutil
 import os
 
+from utils.constant import RECORDED_NOTE_LIST, NOTE_LIST
+from utils.funct import note_to_index
+
 with warnings.catch_warnings(record=True) as w:
     warnings.simplefilter("always")
     from pydub import AudioSegment
     if len(w) and type(w[0].message) == RuntimeWarning:
         # Add warning window, if yes, download ffmpeg, if no, continue (maybe it will not work)
         download = tk.messagebox.askyesno(title="No ffmpeg found", message="Couldn't find ffmpeg or avconv - defaulting "
-                                                                   "to ffmpeg, but may not work\nWould you like"
-                                                                   " to download it (do it if play or export "
-                                                                   "doesn't work)?", )
+                                          "to ffmpeg, but may not work\nWould you like"
+                                          " to download it (do it if play or export "
+                                          "doesn't work)?", )
         if download:
             tk.messagebox.showinfo(title="Downloading ffmpeg", message="Downloading ffmpeg, please close and wait "
                                                                        "until a new "
@@ -31,30 +34,28 @@ with warnings.catch_warnings(record=True) as w:
             Archive('./downloads/ffmpeg.7z').extractall('./downloads/')
             # moves ffmpeg/bin/ffmpeg.exe to ffmpeg.exe
             print("Moving ffmpeg")
-            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffmpeg.exe', './ffmpeg.exe')
-            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffprobe.exe', './ffprobe.exe')
-            shutil.move('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffplay.exe', './ffplay.exe')
+            shutil.move(
+                './downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffmpeg.exe', './ffmpeg.exe')
+            shutil.move(
+                './downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffprobe.exe', './ffprobe.exe')
+            shutil.move(
+                './downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build/bin/ffplay.exe', './ffplay.exe')
             # removes ffmpeg folder
             print("Removing ffmpeg folder")
             os.remove('./downloads/ffmpeg.7z')
-            shutil.rmtree('./downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build')
+            shutil.rmtree(
+                './downloads/ffmpeg-2022-01-30-git-1530b3f566-essentials_build')
             print("Done")
-            tk.messagebox.showinfo(title="Downloading ffmpeg", message="Done downloading ffmpeg, please restart the app")
+            tk.messagebox.showinfo(
+                title="Downloading ffmpeg", message="Done downloading ffmpeg, please restart the app")
             exit()
-
-
-
-
-
-note_list = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-recorded_note_list = ["C", "D#", "F#", "A"]
 
 
 class KeyTrack:
     def __init__(self, index, verbose=False):
         self.index = index
 
-        self.note = note_list[index % 12]
+        self.note = NOTE_LIST[index % 12]
         self.octave = index // 12 + 1
 
         self.tracklist = []
@@ -66,7 +67,7 @@ class KeyTrack:
     def reset_track(self):
         self.tracklist = []
 
-    def addintervaltotrack(self, intensity, position, duration):
+    def add_interval_to_track(self, intensity, position, duration):
         if self.note == "B":
             octave_for_notecreation = int(self.octave) + 1
         else:
@@ -80,21 +81,24 @@ class KeyTrack:
 
         # check if intensity is in the list audioElem if not create it
         if intensity not in self.audioElem:
-            if self.note in recorded_note_list:
-                print("FILE :" "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
+            if self.note in RECORDED_NOTE_LIST:
+                print("FILE :" "piano/flac/" + self.note +
+                      str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
                 self.audioElem[intensity] = AudioSegment.from_file(
                     "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
             else:
-                index = note_list.index(self.note)
+                index = NOTE_LIST.index(self.note)
                 # most proach note in recorded_note_list with note_list
-                for i in recorded_note_list:
-                    if note_list.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
+                for i in RECORDED_NOTE_LIST:
+                    if NOTE_LIST.index(i) - index in [-1, 1] or (self.note == "B" and i == "C"):
                         # reduce or incrase tone by one semitone
                         self.audioElem[intensity] = AudioSegment.from_file(
                             "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(intensity) + ".flac")
 
-                        octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
-                        new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
+                        octaves = (index - NOTE_LIST.index(i)) / \
+                            12 + (self.octave - octave_for_notecreation)
+                        new_sample_rate = int(
+                            self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                         self.audioElem[intensity] = self.audioElem[intensity]._spawn(self.audioElem[intensity].raw_data,
                                                                                      overrides={
@@ -117,7 +121,8 @@ class KeyTrack:
             octave_for_notecreation = int(self.octave) + 1
         else:
             octave_for_notecreation = int(self.octave)
-        print("octave_for_notecreation " + str(octave_for_notecreation), "before", self.note, self.octave)
+        print("octave_for_notecreation " + str(octave_for_notecreation),
+              "before", self.note, self.octave)
         # if no tracklist return empty track
         if len(self.tracklist) == 0:
             return AudioSegment.silent()
@@ -130,22 +135,24 @@ class KeyTrack:
         for sound in self.tracklist:
             intensity = sound[0]
             if intensity not in self.audioElem:
-                if self.note in recorded_note_list:
+                if self.note in RECORDED_NOTE_LIST:
                     self.audioElem[intensity] = AudioSegment.from_file(
                         "piano/flac/" + self.note + str(octave_for_notecreation) + "v" + str(
                             intensity) + ".flac")
                 else:
-                    index = note_list.index(self.note)
+                    index = NOTE_LIST.index(self.note)
                     # most proach note in recorded_note_list with note_list
-                    for i in recorded_note_list:
-                        if note_list.index(i) - index in [-1, 1]:
+                    for i in RECORDED_NOTE_LIST:
+                        if NOTE_LIST.index(i) - index in [-1, 1]:
                             # reduce or incrase tone by one semitone
                             self.audioElem[intensity] = AudioSegment.from_file(
                                 "piano/flac/" + i + str(octave_for_notecreation) + "v" + str(
                                     intensity) + ".flac")
 
-                            octaves = (index - note_list.index(i)) / 12 + (self.octave - octave_for_notecreation)
-                            new_sample_rate = int(self.audioElem[intensity].frame_rate * (2.0 ** octaves))
+                            octaves = (index - NOTE_LIST.index(i)) / \
+                                12 + (self.octave - octave_for_notecreation)
+                            new_sample_rate = int(
+                                self.audioElem[intensity].frame_rate * (2.0 ** octaves))
 
                             self.audioElem[intensity] = self.audioElem[intensity]._spawn(
                                 self.audioElem[intensity].raw_data,
@@ -165,12 +172,8 @@ class KeyTrack:
     def __str__(self):
         # return self.note + str(self.octave) + " : " + str(self.tracklist) joined by \n
         return self.note + str(self.octave) + "\n\n" \
-               + "\n".join(map(lambda x: str(x), self.tracklist))
+            + "\n".join(map(lambda x: str(x), self.tracklist))
 
-
-def notetoindex(note, octave):
-    # return index of note in keylist
-    return note_list.index(note) + 12 * octave - 9
 
 
 class Piano:
@@ -188,14 +191,14 @@ class Piano:
         for key in self.keys:
             key.reset_track()
 
-    def printkey(self, index):
+    def print_key(self, index):
         print(self.keys[index])
 
-    def addintervaltotrack(self, index, intensity, position, duration):
+    def add_interval_to_track(self, index, intensity, position, duration):
         # add interval to keytrack
-        self.keys[index].addintervaltotrack(intensity, position, duration)
+        self.keys[index].add_interval_to_track(intensity, position, duration)
 
-    def indextonote(self, index):
+    def index_to_note(self, index):
         # return note of key
         return self.keys[index].note, self.keys[index].octave
 
@@ -225,7 +228,8 @@ class Piano:
         # make a loading bar to show progression
         for i, notetrack in enumerate(tracklist):
             allnotetrack = allnotetrack.overlay(notetrack)
-            print("\rCombining 2/2 : " + str(int(100 * i / len(tracklist))) + "%", end="")
+            print("\rCombining 2/2 : " +
+                  str(int(100 * i / len(tracklist))) + "%", end="")
         print("\rLoading 2/2 : " + "100%", end="")
         print()
         return allnotetrack
@@ -235,7 +239,8 @@ class Piano:
         for key in self.keys:
             array_of_intervals.append(key.tracklist)
             # load bar
-            print("\rSaving : " + str(int(100 * len(array_of_intervals) / len(self.keys))) + "%", end="")
+            print("\rSaving : " + str(int(100 *
+                  len(array_of_intervals) / len(self.keys))) + "%", end="")
         print("\rSaving : " + "100%", end="")
         print()
 
@@ -253,8 +258,10 @@ class Piano:
                 self.musicLength = int(array_of_intervals[0])
 
             for i, key in enumerate(self.keys):
-                key.tracklist = array_of_intervals[i + 1]  # +1 because the first element is the length of the music
-                print("\rLoading file : " + str(int(100 * i / len(self.keys))) + "%", end="")
+                # +1 because the first element is the length of the music
+                key.tracklist = array_of_intervals[i + 1]
+                print("\rLoading file : " +
+                      str(int(100 * i / len(self.keys))) + "%", end="")
         print("\rLoading file : " + "100%", end="\n")
         print("File loaded")
 
@@ -263,4 +270,4 @@ class Piano:
         print("Saved to " + filename)
 
 
-print(notetoindex("C", 0))
+print(note_to_index(NOTE_LIST,"C", 0))
